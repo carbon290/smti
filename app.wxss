@@ -1,0 +1,31 @@
+/* 全局样式：宿舍人格测评 */
+page {
+  background: linear-gradient(180deg, #f4fbff 0%, #eef5ff 100%);
+  color: #1d2b3a;
+  font-family: -apple-system, "PingFang SC", "Helvetica Neue", Arial, sans-serif;
+}
+
+/* 通用页面容器：只做基础留白，避免影响各页面自身布局 */
+.container {
+  padding: 28rpx 24rpx 40rpx;
+  box-sizing: border-box;
+}
+
+/* 通用主题按钮：hover 时轻微缩放，提升点击反馈 */
+.btn-primary {
+  min-height: 92rpx;
+  border: none;
+  border-radius: 20rpx;
+  background: linear-gradient(135deg, #67b8ff 0%, #60d4b0 100%);
+  color: #ffffff;
+  font-size: 32rpx;
+  font-weight: 700;
+  box-shadow: 0 14rpx 28rpx rgba(93, 176, 244, 0.28);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.btn-primary.btn-hover {
+  transform: scale(0.97);
+  box-shadow: 0 8rpx 16rpx rgba(93, 176, 244, 0.22);
+}
+

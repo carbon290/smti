@@ -1,0 +1,339 @@
+page {
+  background: linear-gradient(180deg, #f4fbff 0%, #eef5ff 100%);
+}
+
+.page-wrap {
+  padding: 32rpx 24rpx 48rpx;
+  box-sizing: border-box;
+}
+
+/* ---------- 人格主卡 ---------- */
+.hero {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(160deg, #ffffff 0%, #f1f9ff 100%);
+  border: 1rpx solid rgba(211, 222, 238, 0.9);
+  border-radius: 30rpx;
+  padding: 30rpx 24rpx 28rpx;
+  box-shadow: 0 20rpx 36rpx rgba(112, 144, 195, 0.1);
+  text-align: center;
+}
+
+.hero::after {
+  content: '';
+  position: absolute;
+  top: -80rpx;
+  left: -60rpx;
+  width: 220rpx;
+  height: 220rpx;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(96, 212, 176, 0.2) 0%, rgba(96, 212, 176, 0) 70%);
+}
+
+.hero-badge {
+  display: inline-block;
+  padding: 8rpx 18rpx;
+  border-radius: 999rpx;
+  background: linear-gradient(135deg, #eaf7ff 0%, #e6f9f1 100%);
+  color: #1f8fd8;
+  font-size: 22rpx;
+  font-weight: 700;
+  letter-spacing: 1rpx;
+}
+
+/* 四个字母方块 */
+.code-row {
+  display: flex;
+  justify-content: center;
+  gap: 14rpx;
+  margin-top: 24rpx;
+}
+
+.code-letter {
+  width: 104rpx;
+  height: 116rpx;
+  border-radius: 22rpx;
+  background: linear-gradient(160deg, #ffffff 0%, #eef7ff 100%);
+  border: 2rpx solid #d9e8fa;
+  box-shadow: 0 10rpx 20rpx rgba(120, 165, 220, 0.14);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 54rpx;
+  font-weight: 800;
+  color: #1d7fd4;
+  line-height: 1;
+}
+
+.nick {
+  margin-top: 26rpx;
+  font-size: 42rpx;
+  font-weight: 800;
+  color: #1d2b3a;
+  letter-spacing: 1rpx;
+}
+
+.slogan {
+  margin-top: 12rpx;
+  font-size: 26rpx;
+  color: #78899c;
+}
+
+.tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12rpx;
+  margin-top: 24rpx;
+}
+
+.tag {
+  padding: 10rpx 20rpx;
+  border-radius: 999rpx;
+  background: #edf7ff;
+  color: #1d7fd4;
+  font-size: 23rpx;
+  font-weight: 600;
+}
+
+/* ---------- 通用卡片 ---------- */
+.card {
+  margin-top: 24rpx;
+  background: rgba(255, 255, 255, 0.88);
+  border: 1rpx solid rgba(222, 230, 240, 0.9);
+  border-radius: 26rpx;
+  padding: 24rpx 22rpx;
+  box-shadow: 0 14rpx 28rpx rgba(140, 170, 210, 0.08);
+}
+
+.card-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 18rpx;
+}
+
+.card-title {
+  font-size: 30rpx;
+  font-weight: 700;
+  color: #233447;
+}
+
+.card-sub {
+  font-size: 21rpx;
+  color: #9aa9ba;
+}
+
+/* ---------- 四维得分条 ---------- */
+.dim {
+  padding: 16rpx 0;
+  border-bottom: 1rpx solid #eef3fa;
+}
+
+.dim:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.dim-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.dim-title {
+  font-size: 25rpx;
+  color: #53657d;
+}
+
+.dim-winner {
+  font-size: 24rpx;
+  font-weight: 700;
+  color: #1d7fd4;
+}
+
+.dim-bar {
+  height: 16rpx;
+  margin-top: 14rpx;
+  border-radius: 999rpx;
+  background: #e9eef8;
+  overflow: hidden;
+}
+
+.dim-fill {
+  height: 100%;
+  border-radius: 999rpx;
+  background: linear-gradient(90deg, #69b7ff 0%, #7ad7b8 100%);
+}
+
+.dim-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 12rpx;
+}
+
+.dim-side {
+  font-size: 22rpx;
+  color: #9aa9ba;
+}
+
+.dim-side.on {
+  color: #1d7fd4;
+  font-weight: 700;
+}
+
+/* ---------- 段落与列表 ---------- */
+.paragraph {
+  font-size: 27rpx;
+  line-height: 1.85;
+  color: #46586c;
+  white-space: normal;
+  word-break: break-word;
+}
+
+.list-item {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 18rpx;
+}
+
+.list-item:last-child {
+  margin-bottom: 0;
+}
+
+.dot {
+  flex: none;
+  width: 14rpx;
+  height: 14rpx;
+  margin-top: 14rpx;
+  margin-right: 16rpx;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #69b7ff 0%, #7ad7b8 100%);
+}
+
+.dot-alt {
+  background: linear-gradient(135deg, #ffc46b 0%, #ff9a76 100%);
+}
+
+.list-text {
+  flex: 1;
+  font-size: 26rpx;
+  line-height: 1.75;
+  color: #46586c;
+  white-space: normal;
+  word-break: break-word;
+}
+
+/* ---------- 底部操作区 ---------- */
+.footer {
+  display: flex;
+  gap: 18rpx;
+  margin-top: 32rpx;
+}
+
+.restart-btn {
+  flex: 1;
+  min-height: 92rpx;
+  border-radius: 20rpx;
+  background: linear-gradient(180deg, #ffffff 0%, #f7fbff 100%);
+  color: #3a4c60;
+  border: 1rpx solid #dfeaf7;
+  font-size: 29rpx;
+  box-shadow: 0 10rpx 20rpx rgba(125, 151, 190, 0.08);
+}
+
+.share-btn {
+  flex: 1.4;
+}
+
+.link {
+  display: block;
+  text-align: center;
+  color: #4e6d8a;
+  margin-top: 24rpx;
+  font-size: 26rpx;
+}
+
+/* ---------- 海报生成入口 ---------- */
+.poster-btn {
+  width: 100%;
+  min-height: 88rpx;
+  margin-top: 20rpx;
+  border-radius: 20rpx;
+  background: linear-gradient(180deg, #ffffff 0%, #eef7ff 100%);
+  color: #1d7fd4;
+  border: 2rpx solid #cfe4fa;
+  font-size: 29rpx;
+  font-weight: 700;
+  box-shadow: 0 10rpx 20rpx rgba(125, 151, 190, 0.1);
+}
+
+/* 兜底画布：移出可视区域但保持渲染，避免影响页面布局 */
+.hidden-canvas {
+  position: fixed;
+  left: -2000rpx;
+  top: 0;
+  width: 600px;
+  height: 900px;
+}
+
+/* ---------- 海报预览层 ---------- */
+.poster-mask {
+  position: fixed;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(18, 30, 45, 0.62);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40rpx 32rpx;
+  box-sizing: border-box;
+  z-index: 100;
+}
+
+.poster-panel {
+  width: 100%;
+  max-width: 620rpx;
+  background: #ffffff;
+  border-radius: 28rpx;
+  padding: 26rpx 24rpx 24rpx;
+  box-shadow: 0 24rpx 48rpx rgba(10, 25, 45, 0.28);
+}
+
+.poster-img {
+  width: 100%;
+  border-radius: 20rpx;
+  background: #eef5ff;
+}
+
+.poster-tip {
+  margin-top: 18rpx;
+  text-align: center;
+  font-size: 23rpx;
+  color: #93a3b6;
+}
+
+.poster-actions {
+  display: flex;
+  gap: 18rpx;
+  margin-top: 22rpx;
+}
+
+.poster-cancel {
+  flex: 1;
+  min-height: 84rpx;
+  border-radius: 18rpx;
+  background: #f4f8fd;
+  color: #52657c;
+  border: 1rpx solid #e2ebf7;
+  font-size: 28rpx;
+}
+
+.poster-save {
+  flex: 1.5;
+  min-height: 84rpx;
+  font-size: 28rpx;
+}

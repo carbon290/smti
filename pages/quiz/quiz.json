@@ -1,0 +1,8 @@
+{
+  "navigationBarTitleText": "测评 - 答题",
+  "navigationStyle": "custom",
+  "usingComponents": {
+    "question-card": "../../components/question-card/question-card"
+  }
+}
+

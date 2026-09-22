@@ -1,0 +1,98 @@
+<view class="page-wrap">
+  <!-- 人格主卡 -->
+  <view class="hero">
+    <view class="hero-badge">你的寝室人格</view>
+
+    <view class="code-row">
+      <view class="code-letter" wx:for="{{letters}}" wx:key="index">{{item}}</view>
+    </view>
+
+    <view class="nick">{{nick}}</view>
+    <view class="slogan">{{slogan}}</view>
+
+    <view class="tag-list">
+      <view class="tag" wx:for="{{tags}}" wx:key="*this">{{item}}</view>
+    </view>
+  </view>
+
+  <!-- 四维得分分布 -->
+  <view class="card">
+    <view class="card-head">
+      <text class="card-title">四维分布</text>
+      <text class="card-sub">越靠右的字母得分越高</text>
+    </view>
+
+    <view class="dim" wx:for="{{dimensions}}" wx:key="key">
+      <view class="dim-top">
+        <text class="dim-title">{{item.title}}</text>
+        <text class="dim-winner">{{item.winnerName}}</text>
+      </view>
+
+      <view class="dim-bar">
+        <view class="dim-fill" style="width: {{item.percent}}%;"></view>
+      </view>
+
+      <view class="dim-foot">
+        <text class="dim-side {{item.leftWin ? 'on' : ''}}">{{item.left}} · {{item.leftPercent}}%</text>
+        <text class="dim-side {{item.rightWin ? 'on' : ''}}">{{item.rightPercent}}% · {{item.right}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 人格解读 -->
+  <view class="card">
+    <view class="card-head">
+      <text class="card-title">人格解读</text>
+    </view>
+    <view class="paragraph">{{desc}}</view>
+  </view>
+
+  <!-- 宿舍相处特点 -->
+  <view class="card">
+    <view class="card-head">
+      <text class="card-title">宿舍相处特点</text>
+    </view>
+    <view class="list-item" wx:for="{{traits}}" wx:key="index">
+      <view class="dot"></view>
+      <text class="list-text">{{item}}</text>
+    </view>
+  </view>
+
+  <!-- 适配室友类型 -->
+  <view class="card">
+    <view class="card-head">
+      <text class="card-title">适配室友类型</text>
+    </view>
+    <view class="list-item" wx:for="{{roommates}}" wx:key="index">
+      <view class="dot dot-alt"></view>
+      <text class="list-text">{{item}}</text>
+    </view>
+  </view>
+
+  <!-- 底部操作区 -->
+  <view class="footer">
+    <button class="restart-btn" hover-class="btn-hover" bindtap="restart">重新测评</button>
+    <button class="share-btn btn-primary" hover-class="btn-hover" open-type="share">分享给室友</button>
+  </view>
+
+  <button class="poster-btn" hover-class="btn-hover" bindtap="openPoster" loading="{{generating}}">
+    {{generating ? '正在生成海报' : '生成人格海报'}}
+  </button>
+
+  <navigator url="/pages/about/about" class="link">看看四个维度都是什么意思</navigator>
+</view>
+
+<!-- 隐藏的兜底画布：离屏画布不可用时，用它来导出海报 -->
+<canvas type="2d" id="posterCanvas" class="hidden-canvas"></canvas>
+
+<!-- 海报预览层 -->
+<view class="poster-mask" wx:if="{{showPoster}}" catchtap="closePoster" catchtouchmove="noop">
+  <view class="poster-panel" catchtap="noop">
+    <image class="poster-img" src="{{posterUrl}}" mode="widthFix" show-menu-by-longpress="{{true}}"></image>
+    <view class="poster-tip">长按图片可直接保存或转发</view>
+    <view class="poster-actions">
+      <button class="poster-cancel" hover-class="btn-hover" bindtap="closePoster">关闭</button>
+      <button class="poster-save btn-primary" hover-class="btn-hover" bindtap="savePoster">保存到相册</button>
+    </view>
+  </view>
+</view>

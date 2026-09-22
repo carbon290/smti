@@ -1,0 +1,15 @@
+<view class="qcard" style="--question-font-size: {{fontSize}}rpx;">
+  <text class="q-text">{{question.text}}</text>
+  <view class="options">
+    <button
+      wx:for="{{question.options}}"
+      wx:key="index"
+      bindtap="onChoose"
+      data-index="{{index}}"
+      class="opt {{selectedIndex === index ? 'selected' : ''}}"
+      type="default"
+    >
+      <text class="option-text">{{item.text}}</text>
+    </button>
+  </view>
+</view>

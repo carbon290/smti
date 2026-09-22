@@ -1,0 +1,71 @@
+<view class="page-wrap">
+  <!-- 顶部标题区 -->
+  <view class="hero">
+    <view class="hero-badge">关于测评</view>
+    <view class="hero-title">四个维度，读懂你的宿舍人设</view>
+    <view class="hero-subtitle">每道题都会为对应维度累计得分，最终拼成属于你的 4 字母人格</view>
+  </view>
+
+  <!-- 四维维度详解 -->
+  <view class="section">
+    <view class="section-head">
+      <text class="section-title">维度释义</text>
+      <text class="section-sub">共 4 组，每组二选一</text>
+    </view>
+
+    <view class="dim-card" wx:for="{{dims}}" wx:key="key">
+      <view class="dim-head">
+        <view class="dim-code">
+          <text class="dim-letter">{{item.left}}</text>
+          <text class="dim-slash">/</text>
+          <text class="dim-letter dim-letter-b">{{item.right}}</text>
+        </view>
+        <text class="dim-title">{{item.title}}</text>
+      </view>
+
+      <view class="dim-row">
+        <view class="dim-bullet"></view>
+        <text class="dim-text"><text class="dim-strong">{{item.left}}</text> · {{item.leftDesc}}</text>
+      </view>
+
+
+      <view class="dim-row">
+        <view class="dim-bullet dim-bullet-alt"></view>
+        <text class="dim-text"><text class="dim-strong">{{item.right}}</text> · {{item.rightDesc}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 测评流程 -->
+  <view class="section">
+    <view class="section-head">
+      <text class="section-title">测评流程</text>
+    </view>
+
+    <view class="step" wx:for="{{steps}}" wx:key="num">
+      <view class="step-num">{{item.num}}</view>
+      <view class="step-body">
+        <text class="step-title">{{item.title}}</text>
+        <text class="step-desc">{{item.desc}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 趣味说明 -->
+  <view class="section">
+    <view class="section-head">
+      <text class="section-title">小提示</text>
+    </view>
+
+    <view class="note" wx:for="{{notes}}" wx:key="index">
+      <view class="note-dot"></view>
+      <text class="note-text">{{item}}</text>
+    </view>
+  </view>
+
+  <!-- 底部操作 -->
+  <view class="footer">
+    <button class="start-btn btn-primary" hover-class="btn-hover" bindtap="startQuiz">开始测评</button>
+    <navigator url="/pages/index/index" open-type="reLaunch" class="link">返回首页</navigator>
+  </view>
+</view>

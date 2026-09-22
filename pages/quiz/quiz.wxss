@@ -1,0 +1,93 @@
+page {
+  background: linear-gradient(180deg, #f4fbff 0%, #eef5ff 100%);
+}
+
+.container {
+  padding: 28rpx 24rpx 40rpx;
+  box-sizing: border-box;
+}
+
+.header-panel {
+  background: rgba(255, 255, 255, 0.75);
+  border: 1rpx solid rgba(144, 179, 229, 0.25);
+  border-radius: 22rpx;
+  padding: 18rpx 20rpx 16rpx;
+  box-shadow: 0 10rpx 22rpx rgba(83, 116, 155, 0.06);
+  margin-bottom: 22rpx;
+}
+
+.badge {
+  display: inline-block;
+  padding: 8rpx 16rpx;
+  border-radius: 999rpx;
+  background: linear-gradient(135deg, #e8f6ff 0%, #dff8ee 100%);
+  color: #1682d2;
+  font-size: 22rpx;
+  font-weight: 700;
+  letter-spacing: 1rpx;
+  margin-bottom: 14rpx;
+}
+
+.topbar {
+  margin-bottom: 4rpx;
+}
+
+.progress {
+  display: block;
+  text-align: right;
+  color: #53657d;
+  font-size: 26rpx;
+  margin-bottom: 14rpx;
+}
+
+.progress-track {
+  width: 100%;
+  height: 12rpx;
+  background: #e9eef8;
+  border-radius: 999rpx;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 999rpx;
+  background: linear-gradient(90deg, #69b7ff 0%, #7ad7b8 100%);
+  box-shadow: 0 0 10rpx rgba(92, 172, 255, 0.5);
+}
+
+.nav {
+  display: flex;
+  justify-content: space-between;
+  gap: 18rpx;
+  margin-top: 10rpx;
+}
+
+.nav-btn {
+  flex: 1;
+  min-height: 82rpx;
+  border-radius: 18rpx;
+  background: linear-gradient(180deg, #ffffff 0%, #f9fbff 100%);
+  color: #1d2b3a;
+  border: 1rpx solid #dfeaf7;
+  font-size: 28rpx;
+  box-shadow: 0 8rpx 18rpx rgba(125, 151, 190, 0.08);
+}
+
+.nav-btn[disabled] {
+  opacity: 0.45;
+}
+
+.home-btn {
+  width: 100%;
+  margin-top: 36rpx;
+}
+
+.empty {
+  margin-top: 80rpx;
+  padding: 28rpx 20rpx;
+  background: #fff;
+  border-radius: 18rpx;
+  line-height: 1.7;
+  color: #465869;
+  box-shadow: 0 10rpx 22rpx rgba(156, 180, 210, 0.12);
+}

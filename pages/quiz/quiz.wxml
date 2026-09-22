@@ -1,0 +1,29 @@
+<view class="container">
+  <block wx:if="{{total === 0}}">
+    <view class="empty">题库未加载 / 题目为空，稍后接入题库后开始测评。</view>
+    <button class="home-btn" bindtap="goHome">返回首页</button>
+  </block>
+  <block wx:else>
+    <view class="header-panel">
+      <view class="badge">宿舍人格测评</view>
+      <view class="topbar">
+        <text class="progress">第 {{current + 1}} / {{total}} 题</text>
+        <view class="progress-track">
+          <view class="progress-fill" style="width: {{((current + 1) / total) * 100}}%;"></view>
+        </view>
+      </view>
+    </view>
+
+    <question-card
+      question="{{question}}"
+      selectedIndex="{{selectedIndex}}"
+      fontSize="{{fontSize}}"
+      bind:choose="choose"
+    />
+
+    <view class="nav">
+      <button class="nav-btn prev" bindtap="prev" disabled="{{current === 0}}">上一题</button>
+      <button class="nav-btn next" bindtap="next" disabled="{{current + 1 === total}}">下一题</button>
+    </view>
+  </block>
+</view>

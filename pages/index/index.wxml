@@ -1,0 +1,57 @@
+<view class="page-wrap">
+  <!-- 顶部主视觉区 -->
+  <view class="hero-card">
+    <view class="hero-badge">宿舍版 MBTI</view>
+    <view class="hero-title">寝室人格测评</view>
+    <view class="hero-subtitle">你的寝室专属 4 字母人格</view>
+
+    <view class="avatar-ring">
+      <view class="avatar-inner">SMTI</view>
+    </view>
+
+    <view class="hero-meta">
+      <view class="meta-item">
+        <text class="meta-num">{{totalQuestions}}</text>
+        <text class="meta-label">道题目</text>
+      </view>
+      <view class="meta-divider"></view>
+      <view class="meta-item">
+        <text class="meta-num">4</text>
+        <text class="meta-label">个维度</text>
+      </view>
+      <view class="meta-divider"></view>
+      <view class="meta-item">
+        <text class="meta-num">16</text>
+        <text class="meta-label">种人格</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 四维维度卡片 -->
+  <view class="info-panel">
+    <view class="panel-head">
+      <text class="info-title">四维维度</text>
+      <text class="info-tip">答题后自动生成人格</text>
+    </view>
+
+    <view class="dim-list">
+      <view class="dim-item" wx:for="{{dimensions}}" wx:key="key">
+        <view class="dim-code">
+          <text class="dim-a">{{item.left}}</text>
+          <text class="dim-slash">/</text>
+          <text class="dim-b">{{item.right}}</text>
+        </view>
+        <view class="dim-text">
+          <text class="dim-name">{{item.name}}</text>
+          <text class="dim-desc">{{item.desc}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 底部操作区 -->
+  <view class="footer">
+    <button class="start-btn btn-primary" hover-class="btn-hover" bindtap="startQuiz">开始测评</button>
+    <navigator url="/pages/about/about" class="link">了解维度说明</navigator>
+  </view>
+</view>
