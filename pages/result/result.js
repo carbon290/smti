@@ -1,6 +1,8 @@
 // 结果页逻辑：读取本地计分结果 -> 匹配人格文案 -> 组装四维分析 -> 生成海报
 const { getPersonality } = require('../../data/personality.js')
 const poster = require('../../utils/poster.js')
+const share = require('../../utils/share.js')
+const safeArea = require('../../utils/safe-area.js')
 
 // 维度元信息，顺序需与 utils/score.js 中拼接 code 的顺序保持一致
 const DIMENSIONS = [
@@ -12,6 +14,8 @@ const DIMENSIONS = [
 
 Page({
   data: {
+    // 顶部安全区高度（px）：navigationStyle 为 custom，需要占位避免内容压到状态栏
+    safeTop: 0,
     code: '',
     letters: [],      // 人格代码拆分后的 4 个字母
     nick: '',
@@ -21,13 +25,19 @@ Page({
     roommates: [],
     tags: [],
     dimensions: [],   // 四维得分分析
+    scores: {},       // 原始四维分值，转发时编码进分享链接
+    fromShare: false, // 是否由好友分享卡片进入（只读态，不写本地缓存）
     posterUrl: '',    // 生成的海报临时路径
     showPoster: false,// 是否展示海报预览层
     generating: false // 生成中状态，防止重复点击
   },
 
-  onLoad() {
-    this.buildResult()
+  /** options 带 code 时说明是从好友分享卡片进来的 */
+  onLoad(options) {
+    safeArea.applySafeArea(this)
+    // 打开右上角菜单里的转发入口（不调用时菜单项是灰的）
+    share.enableShareMenu()
+    this.buildResult(options)
   },
 
   /**
@@ -56,8 +66,18 @@ Page({
       })
   },
 
-  /** 组装结果页所需数据 */
-  buildResult() {
+  /**
+   * 组装结果页所需数据
+   * @param {object} [options] 页面 onLoad 收到的参数，带 code 说明是从分享卡片进来的
+   */
+  buildResult(options) {
+    // 分享卡片进入：结果由链接参数携带，既不依赖也不覆盖好友本地的缓存
+    const shared = share.parseResultQuery(options)
+    if (shared) {
+      this.applyResult(shared, true)
+      return
+    }
+
     const stored = wx.getStorageSync('lastResult')
 
     // 没有有效结果时，回到答题页重新开始
@@ -69,19 +89,25 @@ Page({
       return
     }
 
-    const personality = getPersonality(stored.code)
-    const dimensions = this.buildDimensions(stored)
+    this.applyResult(stored, false)
+  },
+
+  /** 把一份结果渲染到页面上；fromShare 为真时进入只读的「好友分享」态 */
+  applyResult(result, fromShare) {
+    const personality = getPersonality(result.code)
 
     this.setData({
-      code: stored.code,
-      letters: stored.code.split(''),
+      fromShare: !!fromShare,
+      code: result.code,
+      scores: result.scores || {},
+      letters: result.code.split(''),
       nick: personality.nick,
       slogan: personality.slogan,
       desc: personality.desc,
       traits: personality.traits || [],
       roommates: personality.roommates || [],
       tags: personality.tags || [],
-      dimensions
+      dimensions: this.buildDimensions(result)
     })
   },
 
@@ -119,9 +145,12 @@ Page({
     })
   },
 
-  /** 重新测评：清空结果并回到答题页 */
+  /**
+   * 重新测评：清空结果并回到答题页
+   * 好友分享态下不能清缓存，否则会误删访客自己测出来的结果
+   */
   restart() {
-    wx.removeStorageSync('lastResult')
+    if (!this.data.fromShare) wx.removeStorageSync('lastResult')
     wx.redirectTo({ url: '/pages/quiz/quiz' })
   },
 
@@ -200,25 +229,47 @@ Page({
     })
   },
 
+  /** 把已生成的海报图片直接分享给好友 */
+  sharePoster() {
+    if (!this.data.posterUrl) return
+
+    share
+      .shareImage(this.data.posterUrl)
+      .catch(err => {
+        // 用户主动取消分享不需要提示
+        if (share.isCancelError(err)) return
+        console.error('[poster] 分享失败：', err)
+        wx.showToast({ title: '当前版本不支持直接分享，可长按图片保存', icon: 'none' })
+      })
+  },
+
   /** 返回首页 */
   goHome() {
     wx.reLaunch({ url: '/pages/index/index' })
   },
 
-  /** 转发给好友 */
+  /** 转发给好友：把结果编码进 path，好友点开就能直接看到这张结果页 */
   onShareAppMessage() {
     const { code, nick } = this.data
+    if (!code) {
+      return {
+        title: '寝室人格测评，来测测你的宿舍人格',
+        path: '/pages/index/index'
+      }
+    }
     return {
-      title: code ? `我的寝室人格是 ${code} · ${nick}，你呢？` : '寝室人格测评，来测测你的宿舍人格',
-      path: '/pages/index/index'
+      title: `我的寝室人格是 ${code} · ${nick}，你呢？`,
+      path: '/pages/result/result?' + share.encodeResult(this.data)
     }
   },
 
-  /** 分享到朋友圈 */
+  /** 分享到朋友圈：朋友圈不支持自定义 path，用小程序的 query 携带结果 */
   onShareTimeline() {
     const { code, nick } = this.data
+    if (!code) return { title: '寝室人格测评 · 宿舍版 MBTI' }
     return {
-      title: code ? `我的寝室人格是 ${code} · ${nick}` : '寝室人格测评'
+      title: `我的寝室人格是 ${code} · ${nick}`,
+      query: share.encodeResult(this.data)
     }
   }
 })

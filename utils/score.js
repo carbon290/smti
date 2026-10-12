@@ -4,7 +4,6 @@
   - 汇总所有分值后对比每一对字母的得分，得分高者为该维度结果
   返回结构：{ code: 'EGPJ', scores: { 'E/I':{a:..,b:..}, ... } }
 */
-const questions = require('../data/question.js').questions
 
 function calcResult(answers) {
   // 初始计分

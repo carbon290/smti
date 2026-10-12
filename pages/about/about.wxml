@@ -1,4 +1,7 @@
 <view class="page-wrap">
+  <!-- 自定义导航栏：预留状态栏高度，避免真机上内容被状态栏 / 刘海遮挡 -->
+  <view style="height: {{safeTop}}px;"></view>
+
   <!-- 顶部标题区 -->
   <view class="hero">
     <view class="hero-badge">关于测评</view>

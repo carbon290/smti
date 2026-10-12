@@ -1,4 +1,7 @@
 <view class="page-wrap">
+  <!-- 自定义导航栏：预留状态栏高度，避免真机上内容被状态栏 / 刘海遮挡 -->
+  <view style="height: {{safeTop}}px;"></view>
+
   <!-- 顶部主视觉区 -->
   <view class="hero-card">
     <view class="hero-badge">宿舍版 MBTI</view>

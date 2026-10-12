@@ -7,28 +7,36 @@
 1. 用微信开发者工具「导入项目」，选择本目录
 2. 点击编译即可预览（所有计算在本地完成，不联网）
 
-> 本项目使用 Skyline 渲染（`renderer: "skyline"` + `glass-easel`），
-> 如遇画布相关异常，请升级到最新版开发者工具并开启硬件加速。
+> 本项目使用 **WebView 渲染**（未开启 Skyline）。
+> Skyline 在部分开发者工具版本下会导致模拟器渲染层启动超时，
+> 如需切回请在 `app.json` 加回 `"renderer": "skyline"`，
+> 并同步把 `project.config.json` 的 `setting.skylineRenderEnable` 改为 `true`。
+
+> 项目在 `app.json` 里使用了 `navigationStyle: "custom"`（沉浸式界面），
+> 因此各页面需自行避让顶部状态栏：页面 `onLoad` 调用 `utils/safe-area.js` 的
+> `applySafeArea(this)` 得到 `safeTop`，再在 WXML 顶部放一个等高占位元素。
+> 答题页额外提供了返回按钮（自定义导航栏没有系统返回键）。
 
 ## 目录结构
 
 ```
 ├── app.js / app.json / app.wxss     全局配置与样式
+├── package.json                     本地脚本入口（不参与打包）
 ├── pages/
 │   ├── index/    首页：主视觉、四维介绍、开始测评
 │   ├── quiz/     答题页：进度条、单选、上下题切换、实时计分
 │   ├── result/   结果页：人格代码、四维分布、解读、相处建议、海报
 │   └── about/    关于页：四维释义、测评流程、小提示
 ├── components/
-│   ├── question-card/   答题卡片组件（选项统一排版、选中态）
-│   └── navigation-bar/  自定义导航栏（备用）
+│   └── question-card/   答题卡片组件（选项统一排版、选中态）
 ├── data/
 │   ├── question.js      题库，每道题选项绑定维度分值
 │   └── personality.js   16 种人格文案（昵称/解读/特点/适配室友/标签）
 ├── utils/
 │   ├── score.js         计分算法与人格判定
 │   ├── poster.js        海报绘制与保存
-│   └── share.js         分享工具
+│   ├── share.js         分享工具（右上角菜单、图片分享）
+│   └── safe-area.js     顶部安全区高度计算
 └── scripts/
     └── verify.js        本地校验脚本（不参与小程序打包）
 ```
@@ -46,17 +54,25 @@
 
 ## 海报生成
 
-结果页「生成人格海报」会绘制一张 600×900 的海报并预览，支持保存到相册。
+结果页「生成人格海报」会绘制一张 600×900 的海报并预览，支持保存到相册、以及直接分享给好友。
 
-实现采用双路径，优先使用离屏画布（不依赖渲染层，Skyline 下更稳），
+实现采用双路径，优先使用离屏画布（不依赖渲染层），
 失败时自动回退到页面内隐藏 canvas 节点，两条路径共用同一份绘制逻辑。
+
+## 分享
+
+| 入口 | 实现 |
+|---|---|
+| 右上角「⋯」菜单 | 页面 `onLoad` 调 `share.enableShareMenu()`，文案由 `onShareAppMessage` / `onShareTimeline` 提供 |
+| 结果页「分享给室友」 | `button open-type="share"` |
+| 海报预览层「分享给好友」 | `wx.showShareImageMenu`（基础库 2.14.4+，低版本降级为长按图片保存） |
 
 ## 本地校验
 
-数据与算法层可以脱离小程序环境直接验证：
+数据、算法与工程配置都可以脱离小程序环境直接验证：
 
 ```bash
-node scripts/verify.js
+npm run verify        # 等价于 node scripts/verify.js
 ```
 
 覆盖内容：
@@ -65,9 +81,20 @@ node scripts/verify.js
 - 16 种人格代码覆盖率与文案完整性
 - 计分算法四个维度的判定顺序
 - 海报排版边界、文本换行、圆角路径、绘制流程、异常路径
+- 工程配置：渲染器、页面注册与四件套、顶部安全区、分享入口、打包忽略、悬空 require
+
+## 已知待办
+
+- **题库只有 8 题（每维 2 题）**，结果区分度低；且 `utils/score.js` 的 `va >= vb`
+  在平局时一律取左侧字母，会系统性偏向 E / G / S / P。
+  建议扩到 20~30 题、每维度取奇数题，并把选项分值改成加权（如 +2 / +1）。
+- `appid` 目前是测试号，发布前需替换。
+- 用到相册写入权限，发布前需在小程序后台配置隐私保护指引。
+- `components/navigation-bar/` 目前没有页面引用（保留作自定义导航栏备选实现）。
 
 ## 后续可扩展
 
 - 室友人格匹配 / 最佳室友配对分析
 - 排行榜与人格占比统计
 - 云端数据统计（接入云开发）
+- 历史测评记录（目前 `storage` 只存最后一次结果）

@@ -1,9 +1,12 @@
 // 答题页核心逻辑
 const questions = require('../../data/question.js').questions
 const scoreUtil = require('../../utils/score.js')
+const safeArea = require('../../utils/safe-area.js')
 
 Page({
   data: {
+    // 顶部安全区高度（px）：navigationStyle 为 custom，需要占位避免内容压到状态栏
+    safeTop: 0,
     questions: questions || [],
     total: (questions || []).length,
     current: 0,
@@ -14,6 +17,7 @@ Page({
     fontSize: 30
   },
   onLoad() {
+    safeArea.applySafeArea(this)
     this.syncCurrentSelection()
   },
   syncCurrentSelection() {
@@ -53,7 +57,12 @@ Page({
     this.setData({ current: curr, question: this.data.questions[curr] })
     this.syncCurrentSelection()
   },
+  /** 返回上一页；直接进答题页（没有上一页）时回首页 */
   goHome() {
-    wx.navigateBack({ delta: 1 })
+    if (getCurrentPages().length > 1) {
+      wx.navigateBack({ delta: 1 })
+    } else {
+      wx.reLaunch({ url: '/pages/index/index' })
+    }
   }
 })

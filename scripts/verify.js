@@ -1,10 +1,13 @@
 /*
   本地校验脚本（不参与小程序打包）
-  运行方式：node scripts/verify.js
+  运行方式：npm run verify 或 node scripts/verify.js
   作用：
     1. 校验 16 种人格代码是否全部有文案
     2. 校验计分算法对四个维度的判定是否正确
+    3. 校验海报绘制与排版逻辑
+    4. 校验工程配置（渲染器、页面注册、安全区、分享、打包忽略）
 */
+const fs = require('fs')
 const path = require('path')
 
 const { mapping, getPersonality, allCodes } = require(path.join(__dirname, '../data/personality.js'))
@@ -170,6 +173,179 @@ assert(normalized.code === '----', '缺失 code 时使用占位符')
 assert(normalized.dimensions.length === 0, '缺失 dimensions 时返回空数组')
 assert(poster.normalizeData({ dimensions: [{ left: 'E', right: 'I' }] }).dimensions[0].percent === 50,
   '维度缺少 percent 时默认 50')
+
+/* ---------------- 工程配置与工具层 ---------------- */
+
+/** 读取项目内文件（相对项目根目录） */
+function readProjectFile(rel) {
+  return fs.readFileSync(path.join(__dirname, '..', rel), 'utf8')
+}
+
+/** 判断项目内文件是否存在 */
+function projectFileExists(rel) {
+  return fs.existsSync(path.join(__dirname, '..', rel))
+}
+
+console.log('\n[6] 工程配置检查')
+const appJson = JSON.parse(readProjectFile('app.json'))
+const projectConfig = JSON.parse(readProjectFile('project.config.json'))
+// project.private.config.json 的优先级高于 project.config.json，本地调试以它为准
+const privateConfig = projectFileExists('project.private.config.json')
+  ? JSON.parse(readProjectFile('project.private.config.json'))
+  : null
+
+// Skyline 在部分开发者工具版本下会导致模拟器渲染层启动超时，先保持 WebView 渲染
+assert(appJson.renderer !== 'skyline', 'app.json 未启用 skyline 渲染器（避免模拟器渲染层启动超时）')
+assert(!(appJson.rendererOptions && appJson.rendererOptions.skyline &&
+  appJson.rendererOptions.skyline.tagNameStyleIsolation),
+  'app.json 不含已下线的 tagNameStyleIsolation 配置')
+assert(projectConfig.setting && projectConfig.setting.skylineRenderEnable !== true,
+  'project.config.json 未开启 skyline 渲染')
+assert(!privateConfig || !privateConfig.setting || privateConfig.setting.skylineRenderEnable !== true,
+  'project.private.config.json 未开启 skyline 渲染（该文件优先级更高）')
+
+// 页面注册：目录与 app.json 必须一一对应，防止死文件或漏注册
+const appPages = appJson.pages || []
+const pageDirs = fs.readdirSync(path.join(__dirname, '../pages'))
+const registeredNames = appPages.map(p => p.split('/')[1])
+const unregistered = pageDirs.filter(d => registeredNames.indexOf(d) === -1)
+assert(unregistered.length === 0, '没有未注册的页面目录，多余：' + (unregistered.join(',') || '无'))
+
+const missingPageFiles = []
+appPages.forEach(p => {
+  ['wxml', 'js', 'json', 'wxss'].forEach(ext => {
+    if (!projectFileExists(p + '.' + ext)) missingPageFiles.push(p + '.' + ext)
+  })
+})
+assert(missingPageFiles.length === 0, '页面四件套文件齐全，缺失：' + (missingPageFiles.join(',') || '无'))
+
+// 自定义导航栏下，每个页面都要自己做顶部安全区避让
+const customNav = !!(appJson.window && appJson.window.navigationStyle === 'custom')
+if (customNav) {
+  appPages.forEach(p => {
+    assert(readProjectFile(p + '.wxml').indexOf('{{safeTop}}') > -1, p + ' 的 WXML 预留了顶部安全区占位')
+    assert(/applySafeArea/.test(readProjectFile(p + '.js')), p + ' 的 JS 调用了 applySafeArea')
+  })
+} else {
+  assert(true, '使用系统导航栏，无需手工处理顶部安全区')
+}
+
+// 分享：实现 onShareAppMessage 的页面必须同步开启右上角菜单
+assert(/onShareAppMessage/.test(readProjectFile('pages/index/index.js')), '首页实现了 onShareAppMessage')
+assert(/onShareAppMessage/.test(readProjectFile('pages/result/result.js')), '结果页实现了 onShareAppMessage')
+assert(/enableShareMenu/.test(readProjectFile('pages/result/result.js')), '结果页开启了右上角转发菜单')
+
+// 分享链接必须携带结果本身，否则好友点开只会落回首页（历史 bug）
+// 注：用 lastIndexOf 提取，避免注释里出现的 API 名把代码块切错
+const resultPageJs = readProjectFile('pages/result/result.js')
+const shareAppMessageBlock = resultPageJs.slice(resultPageJs.indexOf('onShareAppMessage'))
+assert(shareAppMessageBlock.indexOf('/pages/result/result?') > -1,
+  '结果页转发 path 指向结果页并携带结果参数')
+assert(/query:/.test(resultPageJs.slice(resultPageJs.lastIndexOf('onShareTimeline'))),
+  '结果页 onShareTimeline 通过 query 携带结果参数')
+assert(/fromShare/.test(readProjectFile('pages/result/result.wxml')),
+  '结果页 WXML 有针对好友分享进入的展示分支')
+
+// 打包忽略规则：非运行所需的开发文件不应进入代码包
+const ignoredValues = ((projectConfig.packOptions && projectConfig.packOptions.ignore) || [])
+  .map(r => r.value)
+  .join(',')
+;['scripts', 'node_modules', 'package.json'].forEach(name => {
+  assert(ignoredValues.indexOf(name) > -1, '打包时忽略 ' + name)
+})
+
+// 悬空引用：删文件后不能留下 require 不到的路径
+const jsFiles = []
+function walkJs(dir) {
+  const abs = path.join(__dirname, '..', dir)
+  fs.readdirSync(abs).forEach(name => {
+    if (name === 'node_modules' || name === '.git') return
+    if (dir === '' && (name === 'scripts' || name === 'node_modules')) return
+    const rel = dir ? dir + '/' + name : name
+    const full = path.join(__dirname, '..', rel)
+    if (fs.statSync(full).isDirectory()) {
+      walkJs(rel)
+    } else if (/\.js$/.test(name)) {
+      jsFiles.push(rel)
+    }
+  })
+}
+walkJs('')
+
+const dangling = []
+jsFiles.forEach(file => {
+  const src = readProjectFile(file)
+  const re = /require\(\s*['"]([^'"]+)['"]\s*\)/g
+  let m
+  while ((m = re.exec(src))) {
+    const spec = m[1]
+    if (spec.charAt(0) !== '.' && spec.charAt(0) !== '/') continue
+    const target = path.resolve(path.dirname(path.join(__dirname, '..', file)), spec)
+    const candidates = [target, target + '.js', path.join(target, 'index.js')]
+    if (!candidates.some(c => fs.existsSync(c))) dangling.push(file + ' -> ' + spec)
+  }
+})
+assert(dangling.length === 0, '所有 require 路径都能解析，悬空：' + (dangling.join(', ') || '无'))
+
+assert(!projectFileExists('utils/util.js') && !projectFileExists('pages/logs/logs.js'),
+  '未使用的 utils/util.js 与 pages/logs 已移除')
+
+console.log('\n[7] 顶部安全区工具检查')
+const safeArea = require(path.join(__dirname, '../utils/safe-area.js'))
+assert(safeArea.getTopSafeHeight({}) === safeArea.FALLBACK_TOP,
+  '无 wx 环境时返回兜底高度 ' + safeArea.FALLBACK_TOP)
+assert(safeArea.getTopSafeHeight({ wx: { getSystemInfoSync: () => ({ statusBarHeight: 44 }) } }) === 44,
+  '状态栏 44px 时返回 44')
+assert(safeArea.getTopSafeHeight({
+  wx: {
+    getSystemInfoSync: () => ({ statusBarHeight: 20 }),
+    getMenuButtonBoundingClientRect: () => ({ bottom: 56 })
+  }
+}) === 56, '胶囊下边缘 56px 时取较大值 56')
+assert(safeArea.getTopSafeHeight({
+  wx: { getSystemInfoSync: () => { throw new Error('boom') } }
+}) === safeArea.FALLBACK_TOP, '系统信息接口异常时回退到兜底高度')
+
+const fakePage = { data: {}, setData(d) { Object.assign(this.data, d) } }
+assert(safeArea.applySafeArea(fakePage) === true && fakePage.data.safeTop === safeArea.FALLBACK_TOP,
+  'applySafeArea 把 safeTop 注入页面 data')
+assert(safeArea.applySafeArea(null) === false, '传入非法页面实例时返回 false 而不抛错')
+
+console.log('\n[8] 分享工具检查')
+const share = require(path.join(__dirname, '../utils/share.js'))
+assert(typeof share.enableShareMenu === 'function' && typeof share.shareImage === 'function' &&
+  typeof share.isCancelError === 'function', '导出 enableShareMenu / shareImage / isCancelError')
+assert(share.enableShareMenu() === false, '无 wx 环境下 enableShareMenu 返回 false 而不抛错')
+assert(share.isCancelError({ errMsg: 'showShareImageMenu:fail cancel' }) === true, '能识别用户主动取消')
+assert(share.isCancelError({ errMsg: 'showShareImageMenu:fail some error' }) === false, '不会把普通失败误判为取消')
+
+// 分享链接编解码：好友点开卡片要能还原出分享者的结果
+assert(typeof share.encodeResult === 'function' && typeof share.parseResultQuery === 'function',
+  '导出 encodeResult / parseResultQuery')
+const encoded = share.encodeResult({
+  code: 'ITCP',
+  scores: { 'E/I': { a: 1, b: 3 }, 'G/T': { a: 2, b: 0 }, 'S/C': { a: 1, b: 1 }, 'P/J': { a: 0, b: 2 } }
+})
+const queryObj = {}
+encoded.split('&').forEach(kv => {
+  const p = kv.split('=')
+  queryObj[p[0]] = p[1]
+})
+const decoded = share.parseResultQuery(queryObj)
+assert(decoded && decoded.code === 'ITCP' && decoded.scores['E/I'].a === 1 && decoded.scores['E/I'].b === 3,
+  '分享参数能完整还原人格代码与四维分值')
+assert(share.parseResultQuery({ code: 'egsp' }).code === 'EGSP', '解析人格代码时大小写不敏感')
+assert(share.encodeResult({ code: 'EEEE' }) === '' && share.encodeResult({}) === '',
+  '人格代码非法时不生成分享参数')
+assert(share.parseResultQuery({}) === null && share.parseResultQuery(null) === null,
+  '缺少参数时返回 null 而不是抛错')
+const codeOnly = share.parseResultQuery({ code: 'EGSP' })
+assert(codeOnly && codeOnly.code === 'EGSP' && Object.keys(codeOnly.scores).length === 0,
+  '分值缺失时仍能还原人格代码（四维退化为各 50%）')
+assert(share.parseResultQuery({ code: 'EGSP', d: 'x-y_2-0_1-1_1-0' }).scores['E/I'] === undefined,
+  '分值损坏时跳过该维度而不写入脏数据')
+
+/* ---------------- 异步告终：必须放在最后 ---------------- */
 
 // 无任何画布能力时应明确报错，而不是静默失败或卡住
 // 注意：这是 Promise，需要在回调里结算结果，所以把汇总放到链尾

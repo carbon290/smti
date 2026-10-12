@@ -1,0 +1,15 @@
+{
+  "name": "smti-new",
+  "version": "1.0.0",
+  "private": true,
+  "description": "寝室人格测评小程序（微信原生小程序，本地计分 + 海报生成）",
+  "scripts": {
+    "verify": "node scripts/verify.js"
+  },
+  "keywords": [
+    "miniprogram",
+    "wechat",
+    "mbti"
+  ],
+  "license": "MIT"
+}

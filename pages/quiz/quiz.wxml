@@ -1,4 +1,13 @@
 <view class="container">
+  <!-- 自定义导航栏：预留状态栏高度，并提供返回入口（无系统导航栏） -->
+  <view style="height: {{safeTop}}px;"></view>
+  <view class="nav-row">
+    <view class="nav-back" hover-class="nav-back-hover" bindtap="goHome">
+      <text class="nav-back-arrow">‹</text>
+      <text class="nav-back-text">返回</text>
+    </view>
+  </view>
+
   <block wx:if="{{total === 0}}">
     <view class="empty">题库未加载 / 题目为空，稍后接入题库后开始测评。</view>
     <button class="home-btn" bindtap="goHome">返回首页</button>

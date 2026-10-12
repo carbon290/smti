@@ -1,7 +1,13 @@
 <view class="page-wrap">
+  <!-- 自定义导航栏：预留状态栏高度，避免真机上内容被状态栏 / 刘海遮挡 -->
+  <view style="height: {{safeTop}}px;"></view>
+
+  <!-- 从好友分享卡片进入时的提示 -->
+  <view class="shared-tip" wx:if="{{fromShare}}">这是好友分享的测评结果，往下看 TA 的寝室人格</view>
+
   <!-- 人格主卡 -->
   <view class="hero">
-    <view class="hero-badge">你的寝室人格</view>
+    <view class="hero-badge">{{fromShare ? '好友分享的人格' : '你的寝室人格'}}</view>
 
     <view class="code-row">
       <view class="code-letter" wx:for="{{letters}}" wx:key="index">{{item}}</view>
@@ -71,7 +77,7 @@
 
   <!-- 底部操作区 -->
   <view class="footer">
-    <button class="restart-btn" hover-class="btn-hover" bindtap="restart">重新测评</button>
+    <button class="restart-btn" hover-class="btn-hover" bindtap="restart">{{fromShare ? '我也要测一下' : '重新测评'}}</button>
     <button class="share-btn btn-primary" hover-class="btn-hover" open-type="share">分享给室友</button>
   </view>
 
@@ -89,10 +95,11 @@
 <view class="poster-mask" wx:if="{{showPoster}}" catchtap="closePoster" catchtouchmove="noop">
   <view class="poster-panel" catchtap="noop">
     <image class="poster-img" src="{{posterUrl}}" mode="widthFix" show-menu-by-longpress="{{true}}"></image>
-    <view class="poster-tip">长按图片可直接保存或转发</view>
+    <view class="poster-tip">长按图片可保存，也可以用下面的按钮直接分享</view>
     <view class="poster-actions">
       <button class="poster-cancel" hover-class="btn-hover" bindtap="closePoster">关闭</button>
-      <button class="poster-save btn-primary" hover-class="btn-hover" bindtap="savePoster">保存到相册</button>
+      <button class="poster-save" hover-class="btn-hover" bindtap="savePoster">保存到相册</button>
+      <button class="poster-share btn-primary" hover-class="btn-hover" bindtap="sharePoster">分享给好友</button>
     </view>
   </view>
 </view>

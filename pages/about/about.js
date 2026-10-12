@@ -1,6 +1,10 @@
 // 关于页：展示四维维度释义与测评说明
+const safeArea = require('../../utils/safe-area.js')
+
 Page({
   data: {
+    // 顶部安全区高度（px）：navigationStyle 为 custom，需要占位避免内容压到状态栏
+    safeTop: 0,
     // 四个维度的完整释义，供 WXML 循环渲染
     dims: [
       {
@@ -55,5 +59,10 @@ Page({
   /** 从关于页直接开始测评 */
   startQuiz() {
     wx.navigateTo({ url: '/pages/quiz/quiz' })
+  },
+
+  /** 页面加载时计算顶部安全区高度 */
+  onLoad() {
+    safeArea.applySafeArea(this)
   }
 })

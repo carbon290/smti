@@ -1,12 +1,32 @@
 {
-  "appid": "wx12ac2f1e9a1550d6",
+  "appid": "touristappid",
   "compileType": "miniprogram",
-  "libVersion": "trial",
+  "libVersion": "3.17.3",
   "packOptions": {
     "ignore": [
       {
-        "type": "folder",
-        "value": "scripts"
+        "value": "scripts",
+        "type": "folder"
+      },
+      {
+        "value": "node_modules",
+        "type": "folder"
+      },
+      {
+        "value": "package.json",
+        "type": "file"
+      },
+      {
+        "value": "package-lock.json",
+        "type": "file"
+      },
+      {
+        "value": "README.md",
+        "type": "file"
+      },
+      {
+        "value": "AI_PROMPT.md",
+        "type": "file"
       }
     ],
     "include": []
@@ -36,7 +56,7 @@
     "disableSWC": true,
     "disableUseStrict": false,
     "useCompilerPlugins": false,
-    "skylineRenderEnable": true
+    "skylineRenderEnable": false
   },
   "condition": {},
   "editorSetting": {
@@ -49,7 +69,5 @@
     "pages/quiz/quiz",
     "pages/result/result",
     "pages/about/about"
-  ],
-  "renderer": "skyline",
-  "componentFramework": "glass-easel"
+  ]
 }
